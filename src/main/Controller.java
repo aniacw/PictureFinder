@@ -137,7 +137,7 @@ public class Controller {
 
 
     public void onSearchButtonClicked() {
-        String url = urlComboBox.getAccessibleText();
+        String url = (String) urlComboBox.getSelectionModel().getSelectedItem();
         //"https://www.e-kwiaty.pl/";
         addToHistory(url);
         String pictureFound = pictureFinder.nextPicture();

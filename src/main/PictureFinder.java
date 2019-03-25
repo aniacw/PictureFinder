@@ -16,7 +16,7 @@ public class PictureFinder {
 //        pictureList.add("https://www.e-kwiaty.pl/ekwiaty/images/bo208-xl.jpg");
     }
 
-    private static final Pattern picturePattern = Pattern.compile("(https?[^\"])+(jpg|png|gif)");
+    private static final Pattern picturePattern = Pattern.compile("(https?[^\"]+)(jpg|png|gif)");
 
 
     public void search(String text) {
