@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -46,16 +47,26 @@ public class Controller {
     @FXML
     ComboBox urlComboBox;
 
+    @FXML
+    TextArea content;
+
     private PictureFinder pictureFinder;
     private LinkedList<String> pictures;
     Stage directoryChooserStage;
+    //TODO: historia do oddzielnej klasy, zapisywanie historii do pliku można robić tylko podczas zamykania programu
     private ObservableList<String> searchHistory;
     private LinkedList<String> searchHistoryHelpList;
 
 
-    public void initialize() {
+    @Override
+    public void finalize(){
+
+    }
+
+
+    public void initialize() throws FileNotFoundException {
         pictureFinder = new PictureFinder();
-        pictureFinder.setPicLimit(5);
+        //pictureFinder.setPicLimit(5);//??
         pictures = new LinkedList<>();
         jpgCheckBox.setSelected(true);
         pngCheckBox.setSelected(true);
@@ -63,6 +74,8 @@ public class Controller {
         urlComboBox.setEditable(true);
         searchHistoryHelpList = new LinkedList<>();
         searchHistory = FXCollections.observableArrayList();
+        readFromHistory();
+        urlComboBox.setItems(searchHistory);
     }
 
 
@@ -81,7 +94,7 @@ public class Controller {
     }
 
 
-    public void onDownloadButtonClicked(ActionEvent actionEvent) throws IOException {
+    public void onDownloadButtonClicked() throws IOException {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(directoryChooserStage);
         savePathTextField.setText(selectedDirectory.getAbsolutePath());
@@ -90,7 +103,6 @@ public class Controller {
             String picToSave = pic;
 
             String fileName = picToSave.substring(picToSave.lastIndexOf('/') + 1, picToSave.length());
-            //InputStream inputStream = new URL(pictureFinder.nextPicture()).openStream();
             InputStream inputStream = new URL(picToSave).openStream();
             Files.copy(inputStream, Paths.get(savePathTextField.getText() + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -98,12 +110,29 @@ public class Controller {
     }
 
 
+    private void historyDownload() {
+        try {
+            FileWriter fileWriter = new FileWriter(new File("C:\\Users\\Ania\\Desktop\\picsHistory", "history.txt"));
+            for (String link : searchHistory){
+                fileWriter.write(link);
+                fileWriter.write('\n');
+            }
+
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void fileExtensionSelect() {
+        //TODO: zamiast tego sprawdzać check boxy przy wywolaniu search
         jpgCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (!jpgCheckBox.isSelected()) {
                     //don't look for .jpg
+
                 }
             }
         });
@@ -135,33 +164,42 @@ public class Controller {
         searchHistoryHelpList.add(newUrl);
     }
 
+    private void readFromHistory() throws FileNotFoundException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:\\Users\\Ania\\Desktop\\picsHistory\\history.txt"));
+        try {
+            String link = bufferedReader.readLine();
+            searchHistory.add(link);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void onSearchButtonClicked() {
         String url = (String) urlComboBox.getSelectionModel().getSelectedItem();
-        //"https://www.e-kwiaty.pl/";
+        //https://www.cntraveller.com/gallery/pictures-of-spain
         addToHistory(url);
-        String pictureFound = pictureFinder.nextPicture();
+        //   String pictureFound = pictureFinder.nextPicture();
+        String pictureFound = "xxxxx";
+
         fileExtensionSelect();
         int picCount = 0;
 
-        while (pictureFound != null) {
-
-                      try {
-                String pageContent = downloadPage(url);
-                pictureFinder.search(pageContent);
-            picCount++;
-            statusBar.setText(picCount + " pictures found successfully");
-
-            System.out.println(pictureFound);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                statusBar.setText("Connection failed");
-            }
-            pictureFound = pictureFinder.nextPicture();
+        // while (pictureFound != null) {
+        try {
+            String pageContent = downloadPage(url);
+            pictureFinder.search(pageContent);
+            content.setText(pageContent);
+            statusBar.setText("Page scanned successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusBar.setText("Connection failed");
         }
+
         searchHistory.setAll(searchHistoryHelpList);
         urlComboBox.setItems(searchHistory);
+        historyDownload();
+        statusBar.setText(pictureFinder.getPictureList().size() + " pictures found successfully");
     }
 
 }
