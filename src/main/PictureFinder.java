@@ -1,5 +1,6 @@
 package main;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,54 +15,61 @@ public class PictureFinder {
 
     private LinkedList<String> pictureList;
     private int picLimit;
+    private HashSet<String> uniquePics;
 
     public PictureFinder() {
         pictureList = new LinkedList<>();
         setPicLimit(Integer.MAX_VALUE);
-//        pictureList.add("https://www.e-kwiaty.pl/ekwiaty/images/bo164-d03d.jpg");
-//        pictureList.add("https://www.e-kwiaty.pl/ekwiaty/images/bo002-xl.jpg");
-//        pictureList.add("https://www.e-kwiaty.pl/ekwiaty/images/bo208-xl.jpg");
+        uniquePics = new HashSet();
     }
 
     private Pattern picturePattern = Pattern.compile("\"(https?[^\"?]+(jpg|png|gif))(?:\\?[^\"]+)?\"");
     //private static final Pattern picturePattern = Pattern.compile("\"(https?[^\"]+(jpg|png|gif))\"");
 
     //TODO: weryfikować czy obrazek już był ściagany
-    public void search(String text) {
-        pictureList.clear();
+    //ok tylko pokazuje za duzo zjec w statusbar
+    void search(String text) {
+        clear();
         Matcher matcher = picturePattern.matcher(text);
         while (matcher.find()) {
-            if(pictureList.size() >= picLimit)
+            if (pictureList.size() >= picLimit)
                 break;
 
             String url = matcher.group(1);
-            pictureList.add(url);
-            System.out.println(url);
+            if (uniquePics.add(url)) {
+                pictureList.add(url);
+            }
         }
     }
 
 
-    public void clear(){
+    void add(String pic) {
+        if (uniquePics.add(pic))
+            pictureList.add(pic);
+    }
+
+
+    private void clear() {
         pictureList.clear();
     }
 
-    public String nextPicture(){
+    public String nextPicture() {
         return pictureList.poll();
     }
 
-    public String getPicture(int index){
+    public String getPicture(int index) {
         return pictureList.get(index);
     }
 
-    public void setPicLimit(int picLimit) {
+    private void setPicLimit(int picLimit) {
         this.picLimit = picLimit;
     }
 
-    public LinkedList<String> getPictureList() {
+    LinkedList<String> getPictureList() {
         return pictureList;
     }
 
-    public void setPossibleExtensions(List<String> extensions){
+    public void setPossibleExtensions(List<String> extensions) {
         //TODO: generowanie regexa
     }
 }

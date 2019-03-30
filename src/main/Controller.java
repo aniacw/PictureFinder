@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
@@ -23,9 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Controller {
-
-    @FXML
-    ImageView test;
 
     @FXML
     TextField savePathTextField;
@@ -50,32 +48,39 @@ public class Controller {
     @FXML
     TextArea content;
 
+    @FXML
+    ListView<String> foundPicsLV;
+
+
     private PictureFinder pictureFinder;
     private LinkedList<String> pictures;
     Stage directoryChooserStage;
     //TODO: historia do oddzielnej klasy, zapisywanie historii do pliku można robić tylko podczas zamykania programu
-    private ObservableList<String> searchHistory;
-    private LinkedList<String> searchHistoryHelpList;
+
+    private SearchHistoryManager searchHistoryManager;
+    private ObservableList<String> searchHistoryOL;
 
 
     @Override
-    public void finalize(){
-
+    public void finalize() {
+        searchHistoryManager.historyDownload();
     }
 
 
     public void initialize() throws FileNotFoundException {
         pictureFinder = new PictureFinder();
-        //pictureFinder.setPicLimit(5);//??
-        pictures = new LinkedList<>();
-        jpgCheckBox.setSelected(true);
-        pngCheckBox.setSelected(true);
-        gifCheckBox.setSelected(true);
+        pictures = pictureFinder.getPictureList();
+//        jpgCheckBox.setSelected(true);
+//        pngCheckBox.setSelected(true);
+//        gifCheckBox.setSelected(true);
         urlComboBox.setEditable(true);
-        searchHistoryHelpList = new LinkedList<>();
-        searchHistory = FXCollections.observableArrayList();
-        readFromHistory();
-        urlComboBox.setItems(searchHistory);
+        searchHistoryManager = new SearchHistoryManager();
+        searchHistoryOL = searchHistoryManager.getHistory();
+        searchHistoryManager.readFromHistory();
+        urlComboBox.setItems(searchHistoryOL);
+        foundPicsLV.setCellFactory(TextFieldListCell.forListView());
+        for (int i = 0; i < 10; ++i)
+            foundPicsLV.getItems().add("");
     }
 
 
@@ -110,82 +115,44 @@ public class Controller {
     }
 
 
-    private void historyDownload() {
-        try {
-            FileWriter fileWriter = new FileWriter(new File("C:\\Users\\Ania\\Desktop\\picsHistory", "history.txt"));
-            for (String link : searchHistory){
-                fileWriter.write(link);
-                fileWriter.write('\n');
-            }
-
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void fileExtensionSelect() {
-        //TODO: zamiast tego sprawdzać check boxy przy wywolaniu search
-        jpgCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (!jpgCheckBox.isSelected()) {
-                    //don't look for .jpg
-
-                }
-            }
-        });
-
-        pngCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (!pngCheckBox.isSelected()) {
-                    //don't look for .png
-                }
-            }
-        });
-
-        gifCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (!gifCheckBox.isSelected()) {
-                    //don't look for .gif
-                }
-            }
-        });
-    }
-
-
-    private void addToHistory(String newUrl) {
-        if (searchHistoryHelpList.size() == 10)
-            searchHistoryHelpList.removeLast();
-
-        searchHistoryHelpList.add(newUrl);
-    }
-
-    private void readFromHistory() throws FileNotFoundException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:\\Users\\Ania\\Desktop\\picsHistory\\history.txt"));
-        try {
-            String link = bufferedReader.readLine();
-            searchHistory.add(link);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void fileExtensionSelect() {
+//        //TODO: zamiast tego sprawdzać check boxy przy wywolaniu search
+//        jpgCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+//                if (!jpgCheckBox.isSelected()) {
+//                    //don't look for .jpg
+//
+//                }
+//            }
+//        });
+//
+//        pngCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+//                if (!pngCheckBox.isSelected()) {
+//                    //don't look for .png
+//                }
+//            }
+//        });
+//
+//        gifCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+//                if (!gifCheckBox.isSelected()) {
+//                    //don't look for .gif
+//                }
+//            }
+//        });
+//    }
 
 
     public void onSearchButtonClicked() {
         String url = (String) urlComboBox.getSelectionModel().getSelectedItem();
-        //https://www.cntraveller.com/gallery/pictures-of-spain
-        addToHistory(url);
-        //   String pictureFound = pictureFinder.nextPicture();
-        String pictureFound = "xxxxx";
+        searchHistoryManager.addToHistory(url);
 
-        fileExtensionSelect();
-        int picCount = 0;
+        //fileExtensionSelect();
 
-        // while (pictureFound != null) {
         try {
             String pageContent = downloadPage(url);
             pictureFinder.search(pageContent);
@@ -196,10 +163,18 @@ public class Controller {
             statusBar.setText("Connection failed");
         }
 
-        searchHistory.setAll(searchHistoryHelpList);
-        urlComboBox.setItems(searchHistory);
-        historyDownload();
+        for (String p : pictures)
+            pictureFinder.add(p);
+
+        foundPicsLV.setItems(FXCollections.observableArrayList(pictures));
+        searchHistoryReset();
         statusBar.setText(pictureFinder.getPictureList().size() + " pictures found successfully");
+    }
+
+
+    private void searchHistoryReset(){
+        searchHistoryOL.setAll(searchHistoryManager.getHistoryHelpList());
+        urlComboBox.setItems(searchHistoryOL);
     }
 
 }
