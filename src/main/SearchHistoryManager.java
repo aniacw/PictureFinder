@@ -9,17 +9,17 @@ import java.util.LinkedList;
 public class SearchHistoryManager {
 
     private LinkedList<String> historyHelpList;
-    private ObservableList<String> history;
+    private ObservableList<String> historyOL;
 
      SearchHistoryManager() {
         historyHelpList = new LinkedList<>();
-        history = FXCollections.observableArrayList();
+        historyOL = FXCollections.observableArrayList(historyHelpList);
     }
 
     void historyDownload() {
         try {
             FileWriter fileWriter = new FileWriter(new File("C:\\Users\\Ania\\Desktop\\picsHistory", "history.txt"));
-            for (String link : history) {
+            for (String link : historyOL) {
                 fileWriter.write(link);
                 fileWriter.write('\n');
             }
@@ -30,28 +30,32 @@ public class SearchHistoryManager {
         }
     }
 
+
     void addToHistory(String newUrl) {
         if (historyHelpList.size() == 10)
             historyHelpList.removeLast();
         historyHelpList.add(newUrl);
     }
 
+
     void readFromHistory() throws FileNotFoundException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader("C:\\Users\\Ania\\Desktop\\picsHistory\\history.txt"));
         try {
             String link = bufferedReader.readLine();
-            history.add(link);
+            historyHelpList.add(link);//***************
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
     public LinkedList<String> getHistoryHelpList() {
         return historyHelpList;
     }
 
-    public ObservableList<String> getHistory() {
-        return history;
+
+    public ObservableList<String> getHistoryOL() {
+        return historyOL;
     }
 }
 

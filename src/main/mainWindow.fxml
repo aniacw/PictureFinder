@@ -6,7 +6,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -61,17 +60,17 @@
       </ListView>
       <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <children>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="jpgCheckBox" mnemonicParsing="false" opacity="0.7" text="jpg">
                <VBox.margin>
                   <Insets top="20.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="pngCheckBox" mnemonicParsing="false" opacity="0.7" text="png">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="gifCheckBox" mnemonicParsing="false" opacity="0.7" text="gif">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
@@ -104,7 +103,6 @@
          </children>
       </VBox>
       <Label fx:id="statusBar" prefHeight="21.0" prefWidth="742.0" GridPane.rowIndex="4" />
-      <TextArea fx:id="content" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
    </children>
 
 </GridPane>

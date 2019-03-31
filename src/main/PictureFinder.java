@@ -17,7 +17,8 @@ public class PictureFinder {
     private int picLimit;
     private HashSet<String> uniquePics;
 
-    public PictureFinder() {
+
+    PictureFinder() {
         pictureList = new LinkedList<>();
         setPicLimit(Integer.MAX_VALUE);
         uniquePics = new HashSet();
@@ -27,10 +28,9 @@ public class PictureFinder {
     //private static final Pattern picturePattern = Pattern.compile("\"(https?[^\"]+(jpg|png|gif))\"");
 
     //TODO: weryfikować czy obrazek już był ściagany
-    //ok tylko pokazuje za duzo zjec w statusbar
-    void search(String text) {
+    void search(String text, List<String> extensions) {
         clear();
-        Matcher matcher = picturePattern.matcher(text);
+        Matcher matcher = createPattern(extensions).matcher(text);
         while (matcher.find()) {
             if (pictureList.size() >= picLimit)
                 break;
@@ -53,11 +53,8 @@ public class PictureFinder {
         pictureList.clear();
     }
 
-    public String nextPicture() {
-        return pictureList.poll();
-    }
 
-    public String getPicture(int index) {
+    String getPicture(int index) {
         return pictureList.get(index);
     }
 
@@ -71,5 +68,26 @@ public class PictureFinder {
 
     public void setPossibleExtensions(List<String> extensions) {
         //TODO: generowanie regexa
+    }
+
+
+    public Pattern createPattern(List<String> extensions){
+        String beginning = "\"(https?[^\"?]+(";
+        String extension;
+        String end = "))(?:\\?[^\"]+)?\"";
+
+        StringBuilder builder = new StringBuilder();
+        for (String e : extensions) {
+            builder.append(e);
+            builder.append('|');
+        }
+        extension = builder.toString();
+
+        StringBuilder patternBuilder = new StringBuilder();
+        patternBuilder.append(beginning);
+        patternBuilder.append(extension);
+        patternBuilder.append(end);
+        String createdPattern = patternBuilder.toString();
+        return Pattern.compile(createdPattern);
     }
 }
