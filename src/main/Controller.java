@@ -6,9 +6,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
@@ -38,13 +40,19 @@ public class Controller {
     @FXML
     Button
             download,
-            search;
+            search,
+            mute;
 
     @FXML
     CheckBox
             jpgCheckBox,
             pngCheckBox,
-            gifCheckBox;
+            gifCheckBox,
+            pdfCheckBox,
+            aviCheckBox,
+            docCheckBox,
+            exeCheckBox,
+            zipCheckBox;
 
     @FXML
     ComboBox urlComboBox;
@@ -62,6 +70,7 @@ public class Controller {
     private ObservableList<String> searchHistoryOL;
     private List<String> selectedExtensions;
     private List<CheckBox> checkBoxes;
+    private BackgroundMusic backgroundMusic;
 
     public static SearchHistoryManager getSearchHistoryManager() {
         return searchHistoryManager;
@@ -70,9 +79,6 @@ public class Controller {
     public void initialize() throws FileNotFoundException {
         pictureFinder = new PictureFinder();
         pictures = pictureFinder.getPictureList();
-        jpgCheckBox.setSelected(true);
-        pngCheckBox.setSelected(true);
-        gifCheckBox.setSelected(true);
         urlComboBox.setEditable(true);
         searchHistoryManager = new SearchHistoryManager();
         searchHistoryOL = searchHistoryManager.getHistoryOL();
@@ -83,6 +89,24 @@ public class Controller {
             foundPicsLV.getItems().add("");
         checkBoxes = new ArrayList<>(Arrays.asList(jpgCheckBox, pngCheckBox, gifCheckBox));
         selectedExtensions = new ArrayList<>();
+        backgroundMusic = new BackgroundMusic();
+        setMuteImage();
+    }
+
+    public void setMuteImage(){
+        Image image = new Image(getClass().getResourceAsStream("..\\mute.png"));
+        ImageView imageView = new ImageView(image);
+        mute.setGraphic(imageView);
+    }
+
+
+    public void muteButtonClicked(){
+        mute.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent actionEvent){
+                backgroundMusic.getMediaPlayer().setMute(true);
+            }
+        } );
     }
 
 
@@ -94,12 +118,10 @@ public class Controller {
     }
 
 
-
-//
-//    @FXML
-//    public void exitApplication(ActionEvent event) {
-//        Platform.exit();
-//    }
+    @FXML
+    public void exitApplication(ActionEvent event) {
+        Platform.exit();
+    }
 
 
     private static String downloadPage(String website) throws IOException {
@@ -167,10 +189,13 @@ public class Controller {
 
     public void onSearchButtonClicked() {
         String url = (String) urlComboBox.getSelectionModel().getSelectedItem();
-        searchHistoryManager.addToHistory(url);
+       // searchHistoryManager.addToHistory(url);
+//        System.out.println(searchHistoryManager.getHistoryHelpList());
+//        System.out.println(searchHistoryManager.getHistoryOL());
 
-        //fileExtensionSelect();
 
+       // fileExtensionSelect();
+        selectExtensions();
         try {
             String pageContent = downloadPage(url);
             pictureFinder.search(pageContent, selectedExtensions);

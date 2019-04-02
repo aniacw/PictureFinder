@@ -1,5 +1,6 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,9 +29,10 @@ public class PictureFinder {
     //private static final Pattern picturePattern = Pattern.compile("\"(https?[^\"]+(jpg|png|gif))\"");
 
     //TODO: weryfikować czy obrazek już był ściagany
-    void search(String text, List<String> extensions) {
+    void search(String text, List<String> extensionList) {
         clear();
-        Matcher matcher = createPattern(extensions).matcher(text);
+       // Matcher matcher = picturePattern.matcher(text);
+        Matcher matcher = createPattern(extensionList).matcher(text);
         while (matcher.find()) {
             if (pictureList.size() >= picLimit)
                 break;
@@ -79,7 +81,7 @@ public class PictureFinder {
         StringBuilder builder = new StringBuilder();
         for (String e : extensions) {
             builder.append(e);
-            builder.append('|');
+           // builder.append('|');
         }
         extension = builder.toString();
 
@@ -87,7 +89,16 @@ public class PictureFinder {
         patternBuilder.append(beginning);
         patternBuilder.append(extension);
         patternBuilder.append(end);
+
         String createdPattern = patternBuilder.toString();
+
+        System.out.println(createdPattern);
+
+
         return Pattern.compile(createdPattern);
+    }
+
+    public void adjustRelativeLink(){
+        
     }
 }

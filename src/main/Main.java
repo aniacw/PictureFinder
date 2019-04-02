@@ -18,7 +18,6 @@ public class Main extends Application {
         primaryStage.setTitle("Picture Finder");
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
-        music();
     }
 
 
@@ -27,11 +26,6 @@ public class Main extends Application {
         Controller.getSearchHistoryManager().historyDownload();
     }
 
-    public void music(){
-        Media media = new Media(new File("src\\Zorba.mp3").toURI().toString());
-        MediaPlayer mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setAutoPlay(true);
-    }
 
     public static void main(String[] args) {
         launch(args);

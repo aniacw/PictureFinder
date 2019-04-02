@@ -75,31 +75,36 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="pdfCheckBox" mnemonicParsing="false" opacity="0.7" text="pdf">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="aviCheckBox" mnemonicParsing="false" opacity="0.7" text="avi">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="docCheckBox" mnemonicParsing="false" opacity="0.7" text="doc">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="exeCheckBox" mnemonicParsing="false" opacity="0.7" text="exe">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
-            <CheckBox mnemonicParsing="false" opacity="0.7" text="CheckBox">
+            <CheckBox fx:id="zipCheckBox" mnemonicParsing="false" opacity="0.7" text="zip">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </CheckBox>
+            <Button fx:id="mute" mnemonicParsing="false" onAction="#muteButtonClicked" prefHeight="31.0" prefWidth="29.0">
+               <VBox.margin>
+                  <Insets top="150.0" />
+               </VBox.margin>
+            </Button>
          </children>
       </VBox>
       <Label fx:id="statusBar" prefHeight="21.0" prefWidth="742.0" GridPane.rowIndex="4" />
