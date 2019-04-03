@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -108,6 +109,7 @@
          </children>
       </VBox>
       <Label fx:id="statusBar" prefHeight="21.0" prefWidth="742.0" GridPane.rowIndex="4" />
+      <ProgressBar fx:id="progressBar" prefHeight="23.0" prefWidth="533.0" progress="0.0" GridPane.rowIndex="3" />
    </children>
 
 </GridPane>

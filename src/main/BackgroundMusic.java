@@ -10,10 +10,12 @@ public class BackgroundMusic {
     private Media media;
     private MediaPlayer mediaPlayer;
 
-    public BackgroundMusic(){
-        media = new Media(new File("resources\\Zorba.mp3").toURI().toString());
+
+    public BackgroundMusic(String filename){
+        media = new Media(new File(filename).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
+        mediaPlayer.play();
     }
 
     public Media getMedia() {

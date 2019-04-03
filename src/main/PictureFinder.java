@@ -52,13 +52,10 @@ public class PictureFinder {
 
 
     private void clear() {
+        uniquePics.clear();
         pictureList.clear();
     }
 
-
-    String getPicture(int index) {
-        return pictureList.get(index);
-    }
 
     private void setPicLimit(int picLimit) {
         this.picLimit = picLimit;
@@ -74,17 +71,20 @@ public class PictureFinder {
 
 
     public Pattern createPattern(List<String> extensions){
+
         String beginning = "\"(https?[^\"?]+(";
-        String extension;
+        String extension = "";
         String end = "))(?:\\?[^\"]+)?\"";
 
         StringBuilder builder = new StringBuilder();
-        for (String e : extensions) {
-            builder.append(e);
-           // builder.append('|');
+        if (extensions.size() > 0) {
+            builder.append(extensions.get(0));
+            for (int i = 1; i < extensions.size(); ++i) {
+                builder.append('|');
+                builder.append(extensions.get(i));
+            }
+            extension = builder.toString();
         }
-        extension = builder.toString();
-
         StringBuilder patternBuilder = new StringBuilder();
         patternBuilder.append(beginning);
         patternBuilder.append(extension);
@@ -98,7 +98,17 @@ public class PictureFinder {
         return Pattern.compile(createdPattern);
     }
 
-    public void adjustRelativeLink(){
-        
-    }
+//    public void convertRelativeToAbsolute(String searchedUrl){
+//        Pattern mainPath =  Pattern.compile("\"(https?)[^\"]+/$");
+//        Pattern relativePath = Pattern.compile("\"(/[^\"?]+jpg)(?:\\?[^\"]+)?\"");
+//        String mainPathString;
+//        String relativePathString;
+//        Matcher matcher = mainPath.matcher(searchedUrl);
+//        if(matcher.find())
+//            mainPathString = matcher.group(1);
+//
+//        Matcher matcher1 = relativePath.matcher()
+//
+//
+//    }
 }

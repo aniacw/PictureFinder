@@ -38,7 +38,7 @@ public class SearchHistoryManager {
             historyHelpList.removeLast();
         historyHelpList.add(newUrl);
         historyOL = FXCollections.observableArrayList(historyHelpList);
-       // historyOL.add(newUrl);
+        //historyOL.add(newUrl);
         //System.out.println(historyHelpList);
     }
 
@@ -46,11 +46,14 @@ public class SearchHistoryManager {
    public void readFromHistory() throws FileNotFoundException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader("C:\\Users\\Ania\\Desktop\\picsHistory\\history.txt"));
         try {
-            String link = bufferedReader.readLine();
-            historyHelpList.add(link);//***************
+            String link;
+            while ((link = bufferedReader.readLine()) != null) {
+                historyHelpList.add(link);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        historyOL = FXCollections.observableArrayList(historyHelpList);
     }
 
 

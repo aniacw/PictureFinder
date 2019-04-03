@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -60,6 +61,9 @@ public class Controller {
     @FXML
     ListView<String> foundPicsLV;
 
+    @FXML
+    ProgressBar progressBar;
+
 
     private PictureFinder pictureFinder;
     private LinkedList<String> pictures;
@@ -71,6 +75,7 @@ public class Controller {
     private List<String> selectedExtensions;
     private List<CheckBox> checkBoxes;
     private BackgroundMusic backgroundMusic;
+    private Thread thread;
 
     public static SearchHistoryManager getSearchHistoryManager() {
         return searchHistoryManager;
@@ -81,20 +86,19 @@ public class Controller {
         pictures = pictureFinder.getPictureList();
         urlComboBox.setEditable(true);
         searchHistoryManager = new SearchHistoryManager();
-        searchHistoryOL = searchHistoryManager.getHistoryOL();
         searchHistoryManager.readFromHistory();
+        searchHistoryOL = searchHistoryManager.getHistoryOL();
         urlComboBox.setItems(searchHistoryOL);
         foundPicsLV.setCellFactory(TextFieldListCell.forListView());
-        for (int i = 0; i < 10; ++i)
-            foundPicsLV.getItems().add("");
+
         checkBoxes = new ArrayList<>(Arrays.asList(jpgCheckBox, pngCheckBox, gifCheckBox));
         selectedExtensions = new ArrayList<>();
-        backgroundMusic = new BackgroundMusic();
+     //   backgroundMusic = new BackgroundMusic("resources\\Zorba.mp3");
         setMuteImage();
     }
 
     public void setMuteImage(){
-        Image image = new Image(getClass().getResourceAsStream("..\\mute.png"));
+        Image image = new Image(getClass().getResourceAsStream("/mute.png"));
         ImageView imageView = new ImageView(image);
         mute.setGraphic(imageView);
     }
@@ -111,6 +115,7 @@ public class Controller {
 
 
     public void selectExtensions(){
+        selectedExtensions.clear();
         for(CheckBox checkBox : checkBoxes){
             if(checkBox.isSelected())
                 selectedExtensions.add(checkBox.getText());
@@ -124,7 +129,7 @@ public class Controller {
     }
 
 
-    private static String downloadPage(String website) throws IOException {
+    private String downloadPage(String website) throws IOException {
         URL url = new URL(website);
         URLConnection connection = url.openConnection();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -140,18 +145,34 @@ public class Controller {
 
 
    public void onDownloadButtonClicked() throws IOException {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        File selectedDirectory = directoryChooser.showDialog(directoryChooserStage);
-        savePathTextField.setText(selectedDirectory.getAbsolutePath());
+       DirectoryChooser directoryChooser = new DirectoryChooser();
+       File selectedDirectory = directoryChooser.showDialog(directoryChooserStage);
+       savePathTextField.setText(selectedDirectory.getAbsolutePath());
+       int nImages = pictures.size();
 
-        for (String pic : pictureFinder.getPictureList()) {
-            String picToSave = pic;
+       Task<Void> task = new Task<Void>() {
+           @Override
+           protected Void call() throws Exception {
+               int img = 1;
+               for (String pic : pictureFinder.getPictureList()) {
+                   updateProgress(img, nImages);
+                   String picToSave = pic;
+                   String fileName = picToSave.substring(picToSave.lastIndexOf('/') + 1);
+                   InputStream inputStream = new URL(picToSave).openStream();
+                   Files.copy(inputStream, Paths.get(savePathTextField.getText() + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
+                   ++img;
+               }
+               statusBar.setText("Images downloaded and saved");
+               return null;
+           }
+       };
 
-            String fileName = picToSave.substring(picToSave.lastIndexOf('/') + 1);
-            InputStream inputStream = new URL(picToSave).openStream();
-            Files.copy(inputStream, Paths.get(savePathTextField.getText() + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
-        }
-        statusBar.setText("Images downloaded and saved");
+       progressBar.setProgress(0);
+       progressBar.progressProperty().bind(task.progressProperty());
+
+       thread = new Thread(task);
+       thread.setDaemon(true);
+       thread.start();
     }
 
 
@@ -189,7 +210,8 @@ public class Controller {
 
     public void onSearchButtonClicked() {
         String url = (String) urlComboBox.getSelectionModel().getSelectedItem();
-       // searchHistoryManager.addToHistory(url);
+
+        searchHistoryManager.addToHistory(url);
 //        System.out.println(searchHistoryManager.getHistoryHelpList());
 //        System.out.println(searchHistoryManager.getHistoryOL());
 
